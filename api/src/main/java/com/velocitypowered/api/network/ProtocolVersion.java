@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.velocitypowered.api.util.Ordered;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -74,7 +73,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   MINECRAFT_1_16(735, "1.16"),
   MINECRAFT_1_16_1(736, "1.16.1"),
   MINECRAFT_1_16_2(751, "1.16.2"),
-  MINECRAFT_1_16_COMBAT_8(803, Arrays.toString(new ProtocolFlag[] { ProtocolFlag.COMBAT_TEST }), "1.16_combat-5", "1.16_combat-6"),
+  MINECRAFT_1_16_COMBAT_8(803, new ProtocolFlag[] { ProtocolFlag.COMBAT_TEST },"1.16_combat-5", "1.16_combat-6"),
   MINECRAFT_1_16_3(753, "1.16.3"),
   MINECRAFT_1_16_4(754, "1.16.4", "1.16.5"),
   MINECRAFT_1_17(755, "1.17"),

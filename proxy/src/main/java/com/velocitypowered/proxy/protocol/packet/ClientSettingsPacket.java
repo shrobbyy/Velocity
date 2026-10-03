@@ -21,7 +21,6 @@ import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
 import com.velocitypowered.proxy.protocol.ProtocolUtils;
-//import com.velocitypowered.api.network.ProtocolFlag;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import java.util.Objects;
@@ -44,8 +43,8 @@ public class ClientSettingsPacket implements MinecraftPacket {
   }
 
   public ClientSettingsPacket(String locale, byte viewDistance, int chatVisibility, boolean chatColors,
-                              short skinParts, int mainHand,boolean crouchBlockEnabled, boolean textFilteringEnabled, boolean clientListingAllowed,
-                              int particleStatus) {
+      short skinParts, int mainHand, boolean crouchBlockEnabled, boolean textFilteringEnabled,
+      boolean clientListingAllowed, int particleStatus) {
     this.locale = locale;
     this.viewDistance = viewDistance;
     this.chatVisibility = chatVisibility;
@@ -143,7 +142,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
 
   @Override
   public String toString() {
-        return "ClientSettings{" + "locale='" + locale + '\'' + ", viewDistance=" + viewDistance +
+    return "ClientSettings{" + "locale='" + locale + '\'' + ", viewDistance=" + viewDistance +
         ", chatVisibility=" + chatVisibility + ", chatColors=" + chatColors + ", skinParts=" +
         skinParts + ", mainHand=" + mainHand + ", crouchBlockEnabled=" + crouchBlockEnabled +
         ", textFilteringEnabled=" + textFilteringEnabled +
@@ -151,79 +150,79 @@ public class ClientSettingsPacket implements MinecraftPacket {
   }
 
   @Override
-public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-  this.locale = ProtocolUtils.readString(buf, 16);
-  this.viewDistance = buf.readByte();
-  this.chatVisibility = ProtocolUtils.readVarInt(buf);
-  this.chatColors = buf.readBoolean();
+  public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
+    this.locale = ProtocolUtils.readString(buf, 16);
+    this.viewDistance = buf.readByte();
+    this.chatVisibility = ProtocolUtils.readVarInt(buf);
+    this.chatColors = buf.readBoolean();
 
-  if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-    this.difficulty = buf.readByte();
-  }
-
-  this.skinParts = buf.readUnsignedByte();
-
-  if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-    this.mainHand = ProtocolUtils.readVarInt(buf);
-
-    if (hasCrouchBlock(version)) {
-      this.crouchBlockEnabled = buf.readBoolean();
+    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
+      this.difficulty = buf.readByte();
     }
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      this.textFilteringEnabled = buf.readBoolean();
+    this.skinParts = buf.readUnsignedByte();
 
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-        this.clientListingAllowed = buf.readBoolean();
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
+      this.mainHand = ProtocolUtils.readVarInt(buf);
 
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-          this.particleStatus = ProtocolUtils.readVarInt(buf);
+      if (hasCrouchBlock(version)) {
+        this.crouchBlockEnabled = buf.readBoolean();
+      }
+
+      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
+        this.textFilteringEnabled = buf.readBoolean();
+
+        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
+          this.clientListingAllowed = buf.readBoolean();
+
+          if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
+            this.particleStatus = ProtocolUtils.readVarInt(buf);
+          }
         }
       }
     }
   }
-}
 
   @Override
   public void encode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
-  if (locale == null) {
-    throw new IllegalStateException("No locale specified");
-  }
-  ProtocolUtils.writeString(buf, locale);
-  buf.writeByte(viewDistance);
-  ProtocolUtils.writeVarInt(buf, chatVisibility);
-  buf.writeBoolean(chatColors);
+    if (locale == null) {
+      throw new IllegalStateException("No locale specified");
+    }
+    ProtocolUtils.writeString(buf, locale);
+    buf.writeByte(viewDistance);
+    ProtocolUtils.writeVarInt(buf, chatVisibility);
+    buf.writeBoolean(chatColors);
 
-  if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
-    buf.writeByte(difficulty);
-  }
-
-  buf.writeByte(skinParts);
-
-  if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
-    ProtocolUtils.writeVarInt(buf, mainHand);
-
-    if (hasCrouchBlock(version)) {
-      buf.writeBoolean(crouchBlockEnabled);
+    if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
+      buf.writeByte(difficulty);
     }
 
-    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-      buf.writeBoolean(textFilteringEnabled);
+    buf.writeByte(skinParts);
 
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-        buf.writeBoolean(clientListingAllowed);
+    if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
+      ProtocolUtils.writeVarInt(buf, mainHand);
 
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-          ProtocolUtils.writeVarInt(buf, particleStatus);
+      if (hasCrouchBlock(version)) {
+        buf.writeBoolean(crouchBlockEnabled);
+      }
+
+      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
+        buf.writeBoolean(textFilteringEnabled);
+
+        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
+          buf.writeBoolean(clientListingAllowed);
+
+          if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
+            ProtocolUtils.writeVarInt(buf, particleStatus);
+          }
         }
       }
     }
   }
-}
 
- private static boolean hasCrouchBlock(ProtocolVersion version) {
-  return version.getProtocol() == 803;
-}
+  private static boolean hasCrouchBlock(ProtocolVersion version) {
+    return version == ProtocolVersion.MINECRAFT_1_16_COMBAT_8;
+  }
 
   @Override
   public boolean handle(MinecraftSessionHandler handler) {
@@ -238,9 +237,9 @@ public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersi
   @Override
   public int decodeExpectedMinLength(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersion version) {
     int minLength = 1 // locale
-            + 1       // viewDistance
-            + 1       // chatVisibility
-            + 1;      // chatColors
+        + 1           // viewDistance
+        + 1           // chatVisibility
+        + 1;          // chatColors
 
     if (version.noGreaterThan(ProtocolVersion.MINECRAFT_1_7_6)) {
       minLength += 1; // difficulty
@@ -252,8 +251,8 @@ public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersi
       minLength += 1; // mainHand
 
       if (hasCrouchBlock(version)) {
-      minLength += 1; // crouchBlockEnabled
-    }
+        minLength += 1; // crouchBlockEnabled
+      }
 
       if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
         minLength += 1; // textFilteringEnabled
@@ -265,8 +264,8 @@ public void decode(ByteBuf buf, ProtocolUtils.Direction direction, ProtocolVersi
             minLength += 1; // particleStatus
           }
         }
+      }
     }
-}
     return minLength;
   }
 
