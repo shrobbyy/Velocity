@@ -30,7 +30,7 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public class ClientSettingsWrapper implements PlayerSettings {
 
   static final PlayerSettings DEFAULT = new ClientSettingsWrapper(
-      new ClientSettingsPacket("en_us", (byte) 2, 0, true, (short) 0, 1, false, false, 0));
+      new ClientSettingsPacket("en_us", (byte) 2, 0, true, (short) 0, 1, true, false, false, 0));
 
   private final ClientSettingsPacket settings;
   private final SkinParts parts;

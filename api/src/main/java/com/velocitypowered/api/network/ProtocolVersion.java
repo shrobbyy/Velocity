@@ -11,11 +11,8 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import com.velocitypowered.api.util.Ordered;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 /**
  * Represents each Minecraft protocol version.
@@ -73,6 +70,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   MINECRAFT_1_16(735, "1.16"),
   MINECRAFT_1_16_1(736, "1.16.1"),
   MINECRAFT_1_16_2(751, "1.16.2"),
+  MINECRAFT_1_16_COMBAT_8(803, Arrays.toString(new ProtocolFlag[] { ProtocolFlag.COMBAT_TEST }), "1.16_combat-5", "1.16_combat-6"),
   MINECRAFT_1_16_3(753, "1.16.3"),
   MINECRAFT_1_16_4(754, "1.16.4", "1.16.5"),
   MINECRAFT_1_17(755, "1.17"),
@@ -104,6 +102,7 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
   private final int protocol;
   private final int snapshotProtocol;
   private final String[] names;
+  private ProtocolFlag[] protocolFlags;
 
   /**
    * Represents the lowest supported version.
@@ -171,6 +170,12 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
 
     this.protocol = protocol;
     this.names = names;
+    this.protocolFlags = new ProtocolFlag[0];
+  }
+
+  ProtocolVersion(int protocol, ProtocolFlag[] protocolFlags, String... names) {
+    this(protocol, -1, names);
+    this.protocolFlags = protocolFlags;
   }
 
   /**
@@ -278,6 +283,10 @@ public enum ProtocolVersion implements Ordered<ProtocolVersion> {
    */
   public boolean isLegacy() {
     return false;
+  }
+
+  public List<ProtocolFlag> getProtocolFlags() {
+    return ImmutableList.copyOf(protocolFlags);
   }
 
   @Override

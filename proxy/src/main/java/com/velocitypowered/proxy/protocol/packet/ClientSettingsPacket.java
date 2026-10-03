@@ -17,6 +17,7 @@
 
 package com.velocitypowered.proxy.protocol.packet;
 
+import com.velocitypowered.api.network.ProtocolFlag;
 import com.velocitypowered.api.network.ProtocolVersion;
 import com.velocitypowered.proxy.connection.MinecraftSessionHandler;
 import com.velocitypowered.proxy.protocol.MinecraftPacket;
@@ -34,6 +35,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
   private byte difficulty; // 1.7 Protocol
   private short skinParts;
   private int mainHand;
+  private boolean crouchBlockEnabled; // Added in Combat Snapshots
   private boolean textFilteringEnabled; // Added in 1.17
   private boolean clientListingAllowed; // Added in 1.18, overwrites server-list "anonymous" mode
   private int particleStatus; // Added in 1.21.2
@@ -42,7 +44,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
   }
 
   public ClientSettingsPacket(String locale, byte viewDistance, int chatVisibility, boolean chatColors,
-                              short skinParts, int mainHand, boolean textFilteringEnabled, boolean clientListingAllowed,
+                              short skinParts, int mainHand,boolean crouchBlockEnabled, boolean textFilteringEnabled, boolean clientListingAllowed,
                               int particleStatus) {
     this.locale = locale;
     this.viewDistance = viewDistance;
@@ -50,6 +52,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
     this.chatColors = chatColors;
     this.skinParts = skinParts;
     this.mainHand = mainHand;
+    this.crouchBlockEnabled = crouchBlockEnabled;
     this.textFilteringEnabled = textFilteringEnabled;
     this.clientListingAllowed = clientListingAllowed;
     this.particleStatus = particleStatus;
@@ -102,6 +105,14 @@ public class ClientSettingsPacket implements MinecraftPacket {
     return mainHand;
   }
 
+  public boolean isCrouchBlockEnabled() {
+    return crouchBlockEnabled;
+  }
+
+  public void setCrouchBlockEnabled(boolean enabled) {
+    this.crouchBlockEnabled = enabled;
+  }
+
   public void setMainHand(int mainHand) {
     this.mainHand = mainHand;
   }
@@ -134,7 +145,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
   public String toString() {
     return "ClientSettings{" + "locale='" + locale + '\'' + ", viewDistance=" + viewDistance +
         ", chatVisibility=" + chatVisibility + ", chatColors=" + chatColors + ", skinParts=" +
-        skinParts + ", mainHand=" + mainHand + ", chatFilteringEnabled=" + textFilteringEnabled +
+        skinParts + ", mainHand=" + mainHand + "crouchBlockEnabled=" + crouchBlockEnabled + ", chatFilteringEnabled=" + textFilteringEnabled +
         ", clientListingAllowed=" + clientListingAllowed + ", particleStatus=" + particleStatus + '}';
   }
 
@@ -154,14 +165,19 @@ public class ClientSettingsPacket implements MinecraftPacket {
     if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
       this.mainHand = ProtocolUtils.readVarInt(buf);
 
-      if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
-        this.textFilteringEnabled = buf.readBoolean();
+      if (version.getProtocolFlags().contains(ProtocolFlag.COMBAT_TEST)
+              && version.compareTo(ProtocolVersion.MINECRAFT_1_16_COMBAT_8) >= 0) {
+        this.crouchBlockEnabled = buf.readBoolean();
 
-        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
-          this.clientListingAllowed = buf.readBoolean();
+        if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
+          this.textFilteringEnabled = buf.readBoolean();
 
-          if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
-            this.particleStatus = ProtocolUtils.readVarInt(buf);
+          if (version.noLessThan(ProtocolVersion.MINECRAFT_1_18)) {
+            this.clientListingAllowed = buf.readBoolean();
+
+            if (version.noLessThan(ProtocolVersion.MINECRAFT_1_21_2)) {
+              this.particleStatus = buf.readUnsignedByte();
+            }
           }
         }
       }
@@ -227,6 +243,10 @@ public class ClientSettingsPacket implements MinecraftPacket {
     if (version.noLessThan(ProtocolVersion.MINECRAFT_1_9)) {
       minLength += 1; // mainHand
 
+      if (version.getProtocolFlags().contains(ProtocolFlag.COMBAT_TEST)
+              && version.compareTo(ProtocolVersion.MINECRAFT_1_16_COMBAT_8) >= 0) {
+        buf.writeBoolean(crouchBlockEnabled);
+
       if (version.noLessThan(ProtocolVersion.MINECRAFT_1_17)) {
         minLength += 1; // textFilteringEnabled
 
@@ -239,7 +259,7 @@ public class ClientSettingsPacket implements MinecraftPacket {
         }
       }
     }
-
+}
     return minLength;
   }
 
